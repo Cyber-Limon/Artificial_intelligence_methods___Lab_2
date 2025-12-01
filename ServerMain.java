@@ -14,14 +14,10 @@ public class ServerMain {
             Profile prof = new ProfileImpl();
             prof.setParameter(Profile.GUI, "true");
             prof.setParameter(Profile.MAIN, "true");
-            prof.setParameter(Profile.LOCAL_HOST, "0.0.0.0");
+            prof.setParameter(Profile.LOCAL_HOST, "10.153.115.194");
 
             AgentContainer ServerContainer = rt.createMainContainer(prof);
 
-
-            String[] questionAgents = {
-                    "q1", "q2", "q3"      // << Имена агентов на клиентской машине
-            };
 
 
             // Запуск ticket_agent //
@@ -42,7 +38,7 @@ public class ServerMain {
             AgentController coordinator_agent = ServerContainer.createNewAgent(
                     "coordinator_agent",
                     "CoordinatorAgent",
-                    question_agents
+                    null
             );
 
             coordinator_agent.start();

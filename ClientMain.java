@@ -20,24 +20,22 @@ public class ClientMain {
             Runtime rt = Runtime.instance();
 
             Profile prof = new ProfileImpl();
-            prof.setParameter(Profile.MAIN_HOST, "192.168.1.10");
+            prof.setParameter(Profile.MAIN_HOST, "10.153.115.194");
             prof.setParameter(Profile.MAIN_PORT, "1099");
+            prof.setParameter(Profile.LOCAL_HOST, "10.153.115.194");
             prof.setParameter(Profile.CONTAINER_NAME, "ClientContainer");
 
-            AgentContainer clientContainer = rt.createAgentContainer(prof);
+            AgentContainer ClientContainer = rt.createAgentContainer(prof);
 
             JSONParser parser = new JSONParser();
             JSONArray questions = (JSONArray) parser.parse(new FileReader("src/questions.json"));
-
-            List<String> question_agent_names = new ArrayList<>();
 
             for (Object question : questions) {
                 JSONObject q = (JSONObject) question;
                 long id = (long) q.get("id");
                 String name = "question_agent" + id;
-                question_agent_names.add(name);
 
-                AgentController question_agent = clientContainer.createNewAgent(
+                AgentController question_agent = ClientContainer.createNewAgent(
                         name,
                         "QuestionAgent",
                         new Object[]{q.toJSONString()}
@@ -49,7 +47,7 @@ public class ClientMain {
                 Thread.sleep(10);
             }
 
-            AgentController sender = clientContainer.createNewAgent(
+            AgentController sender = ClientContainer.createNewAgent(
                     "sender_agent",
                     "SenderAgent",
                     new Object[]{ String.valueOf(questions.size()) }

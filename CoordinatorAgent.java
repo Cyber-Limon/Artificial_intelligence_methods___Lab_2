@@ -19,7 +19,7 @@ import org.json.simple.parser.JSONParser;
 
 
 public class CoordinatorAgent extends Agent {
-    private int question_agents_num;
+    private int question_agents_num = -1;
     private final List<Question> questions = new ArrayList<>();
 
 
@@ -219,7 +219,7 @@ public class CoordinatorAgent extends Agent {
 
                         if ("agents_count".equals(msg.getConversationId())) {
                             question_agents_num = Integer.parseInt(msg.getContent());
-                            System.out.println("[" + getLocalName() + "] получил количество агентов: " + question_agents_num);
+                            System.out.println("[" + getLocalName() + "] получил количество агентов [" + question_agents_num + "]");
                         }
                     }
                     catch (Exception e) {
