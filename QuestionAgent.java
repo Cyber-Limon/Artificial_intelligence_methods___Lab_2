@@ -25,7 +25,7 @@ public class QuestionAgent extends Agent {
 
             DFService.register(this, dfd);
 
-            System.out.println("[" + getLocalName() + "] зарегистрирован в DF как [" + getLocalName() + "]");
+            System.out.println("[" + getLocalName() + "] зарегистрировался в DF как [" + getLocalName() + "]");
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -1,6 +1,4 @@
-import java.util.List;
 import java.io.FileReader;
-import java.util.ArrayList;
 
 import jade.core.Profile;
 import jade.core.Runtime;
@@ -20,15 +18,31 @@ public class ClientMain {
             Runtime rt = Runtime.instance();
 
             Profile prof = new ProfileImpl();
-            prof.setParameter(Profile.MAIN_HOST, "10.153.115.194");
+            prof.setParameter(Profile.MAIN_HOST, "10.244.215.194");
             prof.setParameter(Profile.MAIN_PORT, "1099");
-            prof.setParameter(Profile.LOCAL_HOST, "10.153.115.194");
+            prof.setParameter(Profile.LOCAL_HOST, "10.244.215.194");
+            prof.setParameter(Profile.LOCAL_PORT, "1100");
             prof.setParameter(Profile.CONTAINER_NAME, "ClientContainer");
 
             AgentContainer ClientContainer = rt.createAgentContainer(prof);
 
             JSONParser parser = new JSONParser();
             JSONArray questions = (JSONArray) parser.parse(new FileReader("src/questions.json"));
+
+
+            // Запуск ticket_agent //
+
+            AgentController ticket_agent = ClientContainer.createNewAgent(
+                    "ticket_agent",
+                    "TicketAgent",
+                    null
+            );
+
+            ticket_agent.start();
+            System.out.println("[ticket_agent] запускается");
+
+
+            // Запуск question_agent //
 
             for (Object question : questions) {
                 JSONObject q = (JSONObject) question;
@@ -46,14 +60,6 @@ public class ClientMain {
 
                 Thread.sleep(10);
             }
-
-            AgentController sender = ClientContainer.createNewAgent(
-                    "sender_agent",
-                    "SenderAgent",
-                    new Object[]{ String.valueOf(questions.size()) }
-            );
-
-            sender.start();
         }
         catch (Exception e) {
             e.printStackTrace();

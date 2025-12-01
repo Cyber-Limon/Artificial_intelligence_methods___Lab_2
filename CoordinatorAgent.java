@@ -19,7 +19,8 @@ import org.json.simple.parser.JSONParser;
 
 
 public class CoordinatorAgent extends Agent {
-    private int question_agents_num = -1;
+    private int tick = 0;
+    private int question_agents_num = 0;
     private final List<Question> questions = new ArrayList<>();
 
 
@@ -38,38 +39,6 @@ public class CoordinatorAgent extends Agent {
             e.printStackTrace();
             return 0;
         }
-    }
-
-
-    private void receiving_questions() {
-        addBehaviour(new OneShotBehaviour(this) {
-            @Override
-            public void action() {
-                try {
-                    DFAgentDescription template = new DFAgentDescription();
-                    ServiceDescription sd = new ServiceDescription();
-                    sd.setType("question_agent");
-                    template.addServices(sd);
-
-                    DFAgentDescription[] result = DFService.search(myAgent, template);
-
-                    for (DFAgentDescription dfd : result) {
-                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                        msg.addReceiver(dfd.getName());
-                        msg.setContent("Запрос данных");
-
-                        send(msg);
-
-                        System.out.println("[" + getLocalName() + "] отправил запрос к [" + dfd.getName().getLocalName() + "]");
-
-                        Thread.sleep(100);
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
 
@@ -162,6 +131,38 @@ public class CoordinatorAgent extends Agent {
     }
 
 
+    private void receiving_questions() {
+        addBehaviour(new OneShotBehaviour(this) {
+            @Override
+            public void action() {
+                try {
+                    DFAgentDescription template = new DFAgentDescription();
+                    ServiceDescription sd = new ServiceDescription();
+                    sd.setType("question_agent");
+                    template.addServices(sd);
+
+                    DFAgentDescription[] result = DFService.search(myAgent, template);
+
+                    for (DFAgentDescription dfd : result) {
+                        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                        msg.addReceiver(dfd.getName());
+                        msg.setContent("Запрос данных");
+
+                        send(msg);
+
+                        System.out.println("[" + getLocalName() + "] отправил запрос к [" + dfd.getName().getLocalName() + "]");
+
+                        Thread.sleep(100);
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+
     @Override
     protected void setup() {
         System.out.println("[" + getLocalName() + "] запущен");
@@ -176,7 +177,7 @@ public class CoordinatorAgent extends Agent {
             dfd.addServices(sd);
 
             DFService.register(this, dfd);
-            System.out.println("[" + getLocalName() + "] зарегистрирован в DF как [coordinator_agent]");
+            System.out.println("[" + getLocalName() + "] зарегистрировался в DF как [" + getLocalName() + "]");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -188,11 +189,18 @@ public class CoordinatorAgent extends Agent {
             protected void onTick() {
 
                 int ready = question_agent_number();
-                int need = question_agents_num;
 
-                System.out.println("[" + getLocalName() + "] готово [question_agent]: " + ready + " / " + need);
+                if (ready != question_agents_num) {
+                    question_agents_num = ready;
+                    tick = 0;
+                }
+                else
+                    tick++;
 
-                if (ready == need) {
+
+                System.out.println("[" + getLocalName() + "] готово [question_agent]: [" + ready + "]");
+
+                if ((question_agents_num != 0) && (tick >= 10)) {
                     System.out.println("[" + getLocalName() + "] все [question_agent] готовы");
 
                     receiving_questions();
@@ -215,11 +223,6 @@ public class CoordinatorAgent extends Agent {
 
                         if ("ticket_agent".equals(msg.getConversationId())) {
                             System.out.println("[" + getLocalName() + "] получил подтверждение от [" + msg.getSender().getLocalName() + "]");
-                        }
-
-                        if ("agents_count".equals(msg.getConversationId())) {
-                            question_agents_num = Integer.parseInt(msg.getContent());
-                            System.out.println("[" + getLocalName() + "] получил количество агентов [" + question_agents_num + "]");
                         }
                     }
                     catch (Exception e) {
