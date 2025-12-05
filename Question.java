@@ -9,6 +9,13 @@ public class Question {
         this.topic = topic;
     }
 
+    public Question(String str) {
+        String[] fields = str.split(",");
+        this.id = Long.parseLong(fields[0]);
+        this.difficulty = Long.parseLong(fields[1]);
+        this.topic = fields[2];
+    }
+
     public long getId() {
         return id;
     }
@@ -23,6 +30,6 @@ public class Question {
 
     @Override
     public String toString() {
-        return "Question{ id=" + id + ", difficulty=" + difficulty + ", topic=" + topic + "}";
+        return id + "," + difficulty + "," + topic;
     }
 }

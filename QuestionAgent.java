@@ -5,53 +5,68 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 
+import java.util.Objects;
+
 
 
 public class QuestionAgent extends Agent {
+    private boolean used = false;
     private String question;
 
+
     @Override
-    protected void setup() {
-        System.out.println("[" + getLocalName() + "] запущен");
+    protected void setup(){
+        Object[] args = getArguments();
+        if (args != null && args.length != 0) {
+            question = (String) args[0];
+        }
+
+        System.out.println("[" + getLocalName() + "] запустился");
 
         try {
-            DFAgentDescription dfd = new DFAgentDescription();
-            dfd.setName(getAID());
+            DFAgentDescription df = new DFAgentDescription();
+            df.setName(getAID());
 
             ServiceDescription sd = new ServiceDescription();
             sd.setType("question_agent");
             sd.setName(getLocalName());
-            dfd.addServices(sd);
+            df.addServices(sd);
 
-            DFService.register(this, dfd);
-
+            DFService.register(this, df);
             System.out.println("[" + getLocalName() + "] зарегистрировался в DF как [" + getLocalName() + "]");
         }
         catch (Exception e) {
             e.printStackTrace();
         }
 
-        Object[] args = getArguments();
-        if (args != null && args.length != 0) {
-            question = (String) args[0];
-        }
 
         addBehaviour(new CyclicBehaviour() {
             @Override
             public void action() {
-                ACLMessage msg = receive();
+                ACLMessage message = receive();
 
-                if (msg != null) {
-                    System.out.println("[" + getLocalName() + "] получил сообщение от [" + msg.getSender().getLocalName() + "]");
+                if (message != null){
+                    if ("return_question".equals(message.getConversationId())){
+                        System.out.println("[" + getLocalName() + "] получил запрос от [" + message.getSender().getLocalName() + "]");
 
-                    ACLMessage reply = msg.createReply();
-                    reply.setPerformative(ACLMessage.INFORM);
-                    reply.setConversationId("question_agent");
-                    reply.setContent(question);
+                        if (!used) {
+                            used = true;
+                            System.out.println("[" + getLocalName() + "] включился в [" + message.getSender().getLocalName() + "]");
+                        }
 
-                    send(reply);
-                    System.out.println(
-                            "[" + getLocalName() + "] отправил ответ [" + msg.getSender().getLocalName() + "]; Содержание ответа: " + question);
+                        ACLMessage reply = message.createReply();
+                        reply.setPerformative(ACLMessage.INFORM);
+                        reply.setConversationId("get_question");
+                        reply.setContent(question);
+
+                        send(reply);
+                        System.out.println("[" + getLocalName() + "] отправил ответ [" + message.getSender().getLocalName() + "]; Содержание ответа: " + question);
+                    }
+
+                    if (message.getConversationId().equals("reject_question")){
+                        used = false;
+                        System.out.println("[" + getLocalName() + "] не включился в [" + message.getSender().getLocalName() + "]");
+                    }
                 }
                 else {
                     block();
@@ -59,6 +74,7 @@ public class QuestionAgent extends Agent {
             }
         });
     }
+
 
     @Override
     protected void takeDown() {
@@ -68,7 +84,6 @@ public class QuestionAgent extends Agent {
         catch (Exception e) {
             e.printStackTrace();
         }
-
         System.out.println("[" + getLocalName() + "] завершил работу");
     }
 }

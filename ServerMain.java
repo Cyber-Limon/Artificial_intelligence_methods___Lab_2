@@ -14,19 +14,25 @@ public class ServerMain {
             Profile prof = new ProfileImpl();
             prof.setParameter(Profile.GUI, "true");
             prof.setParameter(Profile.MAIN, "true");
-            prof.setParameter(Profile.LOCAL_HOST, "10.244.215.194");
+            prof.setParameter(Profile.LOCAL_HOST, "10.33.0.2");
             prof.setParameter(Profile.LOCAL_PORT, "1099");
 
             AgentContainer ServerContainer = rt.createMainContainer(prof);
 
-            AgentController coordinator_agent = ServerContainer.createNewAgent(
-                    "coordinator_agent",
-                    "CoordinatorAgent",
-                    null
-            );
+            for (int i = 1; i <= 15; i++) {
+                String name = "ticket_agent" + i;
 
-            coordinator_agent.start();
-            System.out.println("[coordinator_agent] запускается");
+                AgentController ticket_agent = ServerContainer.createNewAgent(
+                        name,
+                        "TicketAgent",
+                        null
+                );
+
+                ticket_agent.start();
+                System.out.println("[" + name + "] запускается");
+
+                Thread.sleep(10);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
