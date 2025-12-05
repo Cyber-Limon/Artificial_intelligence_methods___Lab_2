@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.util.Objects;
+import java.util.Random;
 
 
 
@@ -58,6 +59,8 @@ public class TicketAgent extends Agent {
 
     private void get_question_agents() {
         try {
+            Random random = new Random();
+
             DFAgentDescription template = new DFAgentDescription();
             ServiceDescription sd = new ServiceDescription();
             sd.setType("question_agent");
@@ -65,6 +68,14 @@ public class TicketAgent extends Agent {
 
             DFAgentDescription[] result = DFService.search(this, template);
 
+            ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
+            message.addReceiver(result[random.nextInt(30)].getName());
+            message.setConversationId("return_question");
+
+            send(message);
+            System.out.println("[" + getLocalName() + "] запросил 'вопрос' у [" + result[random.nextInt(30)].getName().getLocalName() + "]");
+
+            /*
             for (DFAgentDescription question : result) {
                 ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
                 message.addReceiver(question.getName());
@@ -73,6 +84,7 @@ public class TicketAgent extends Agent {
                 send(message);
                 System.out.println("[" + getLocalName() + "] запросил 'вопрос' у [" + question.getName().getLocalName() + "]");
             }
+            */
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -101,7 +113,7 @@ public class TicketAgent extends Agent {
             }
             else {
                 ACLMessage reply = message.createReply();
-                reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
+                reply.setPerformative(ACLMessage.INFORM);
                 reply.setConversationId("reject_question");
 
                 send(reply);
@@ -164,7 +176,7 @@ public class TicketAgent extends Agent {
                         medium_difficulty = Double.parseDouble(message.getContent());
                     }
 
-                    if ("get_question".equals(message.getConversationId())) {
+                    if ("used_false".equals(message.getConversationId())) {
                         questions_processing(message);
                     }
                 }

@@ -49,18 +49,17 @@ public class QuestionAgent extends Agent {
                     if ("return_question".equals(message.getConversationId())){
                         System.out.println("[" + getLocalName() + "] получил запрос от [" + message.getSender().getLocalName() + "]");
 
-                        if (!used) {
-                            used = true;
-                            System.out.println("[" + getLocalName() + "] включился в [" + message.getSender().getLocalName() + "]");
-                        }
-
                         ACLMessage reply = message.createReply();
                         reply.setPerformative(ACLMessage.INFORM);
-                        reply.setConversationId("get_question");
+                        reply.setConversationId("used_" + used);
                         reply.setContent(question);
 
+                        if (!message.getSender().getLocalName().equals("manager_agent")){
+                            used = true;
+                        }
+
                         send(reply);
-                        System.out.println("[" + getLocalName() + "] отправил ответ [" + message.getSender().getLocalName() + "]; Содержание ответа: " + question);
+                        System.out.println("[" + getLocalName() + "] отправил ответ [" + message.getSender().getLocalName() + "] на [" + reply.getConversationId() + "]; Содержание ответа: " + question);
                     }
 
                     if (message.getConversationId().equals("reject_question")){

@@ -108,7 +108,7 @@ public class ManagerAgent extends Agent {
                 ACLMessage message = receive();
 
                 if (message != null){
-                    if ("get_question".equals(message.getConversationId())){
+                    if ("used_false".equals(message.getConversationId())){
                         get_difficulty(message);
                     }
 
