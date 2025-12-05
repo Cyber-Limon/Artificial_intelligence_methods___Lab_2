@@ -9,7 +9,6 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -68,10 +67,10 @@ public class ManagerAgent extends Agent {
     }
 
 
-    private void save_ticket(JSONObject ticket_json) {
-        try (FileWriter writer = new FileWriter("src/tickets.json", true)) {
-            writer.write(ticket_json.toJSONString());
-            writer.write("\n");
+    private void save_ticket(String ticket) {
+        try (FileWriter writer = new FileWriter("src/tickets.txt", true)) {
+            writer.write(ticket);
+            writer.write("\n\n");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -131,26 +130,21 @@ public class ManagerAgent extends Agent {
                         Question question_1 = new Question(message.getContent().split(";")[0]);
                         Question question_2 = new Question(message.getContent().split(";")[1]);
 
-                        JSONObject ticket_json = new JSONObject();
-                        JSONArray questions = new JSONArray();
+                        StringBuilder ticket = new StringBuilder();
 
-                        JSONObject question_1_json = new JSONObject();
-                        question_1_json.put("id", question_1.getId());
-                        question_1_json.put("difficulty", question_1.getDifficulty());
-                        question_1_json.put("topic", question_1.getTopic());
+                        ticket.append("Билет: ").append(message.getSender().getLocalName()).append("\n");
 
-                        JSONObject question_2_json = new JSONObject();
-                        question_2_json.put("id", question_2.getId());
-                        question_2_json.put("difficulty", question_2.getDifficulty());
-                        question_2_json.put("topic", question_2.getTopic());
+                        ticket.append("\tВопрос 1:\n");
+                        ticket.append("\t\tid: ").append(question_1.getId()).append(";");
+                        ticket.append("\t\tdifficulty: ").append(question_1.getDifficulty()).append(";");
+                        ticket.append("\t\ttopic: ").append(question_1.getTopic()).append("\n");
 
-                        questions.add(question_1_json);
-                        questions.add(question_2_json);
+                        ticket.append("\tВопрос 2:\n");
+                        ticket.append("\t\tid: ").append(question_2.getId()).append(";");
+                        ticket.append("\t\tdifficulty: ").append(question_2.getDifficulty()).append(";");
+                        ticket.append("\t\ttopic: ").append(question_2.getTopic()).append("\n");
 
-                        ticket_json.put("ticket", message.getSender().getLocalName());
-                        ticket_json.put("questions", questions);
-
-                        save_ticket(ticket_json);
+                        save_ticket(ticket.toString());
 
                         System.out.println("[" + getLocalName() + "] сохранил 'билет' [" + message.getSender().getLocalName() + "]");
                     }

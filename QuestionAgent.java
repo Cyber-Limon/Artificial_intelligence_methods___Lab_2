@@ -5,8 +5,6 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 
-import java.util.Objects;
-
 
 
 public class QuestionAgent extends Agent {
@@ -60,6 +58,11 @@ public class QuestionAgent extends Agent {
 
                         send(reply);
                         System.out.println("[" + getLocalName() + "] отправил ответ [" + message.getSender().getLocalName() + "] на [" + reply.getConversationId() + "]; Содержание ответа: " + question);
+                    }
+
+                    if (message.getConversationId().equals("accept_question")){
+                        System.out.println("[" + getLocalName() + "] включился в [" + message.getSender().getLocalName() + "]");
+                        takeDown();
                     }
 
                     if (message.getConversationId().equals("reject_question")){

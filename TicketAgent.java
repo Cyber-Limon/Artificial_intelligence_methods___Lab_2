@@ -18,6 +18,7 @@ public class TicketAgent extends Agent {
     private double medium_difficulty = -1;
     private Question question_1;
     private Question question_2;
+    private boolean waiting = false;
 
 
     private void get_manager_agent() {
@@ -68,14 +69,6 @@ public class TicketAgent extends Agent {
 
             DFAgentDescription[] result = DFService.search(this, template);
 
-            ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
-            message.addReceiver(result[random.nextInt(30)].getName());
-            message.setConversationId("return_question");
-
-            send(message);
-            System.out.println("[" + getLocalName() + "] запросил 'вопрос' у [" + result[random.nextInt(30)].getName().getLocalName() + "]");
-
-            /*
             for (DFAgentDescription question : result) {
                 ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
                 message.addReceiver(question.getName());
@@ -84,7 +77,6 @@ public class TicketAgent extends Agent {
                 send(message);
                 System.out.println("[" + getLocalName() + "] запросил 'вопрос' у [" + question.getName().getLocalName() + "]");
             }
-            */
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -94,7 +86,12 @@ public class TicketAgent extends Agent {
 
     private void questions_processing(ACLMessage message) {
         try {
+            waiting = false;
+
             System.out.println("[" + getLocalName() + "] получил 'вопрос' от [" + message.getSender().getLocalName() + "]");
+
+            ACLMessage reply = message.createReply();
+            reply.setPerformative(ACLMessage.INFORM);
 
             JSONParser parser = new JSONParser();
             JSONObject question = (JSONObject) parser.parse(message.getContent());
@@ -105,15 +102,21 @@ public class TicketAgent extends Agent {
 
             if (question_1 == null) {
                 question_1 = new Question(id, difficulty, topic);
+
+                reply.setConversationId("accept_question");
+
+                send(reply);
                 System.out.println("[" + getLocalName() + "] сохранил 'вопрос' от [" + message.getSender().getLocalName() + "]");
             }
             else if ((question_2 == null) && ((question_1.getDifficulty() + difficulty) / 2.0 == medium_difficulty) && (!Objects.equals(question_1.getTopic(), topic))){
                 question_2 = new Question(id, difficulty, topic);
+
+                reply.setConversationId("accept_question");
+
+                send(reply);
                 System.out.println("[" + getLocalName() + "] сохранил 'вопрос' от [" + message.getSender().getLocalName() + "]");
             }
             else {
-                ACLMessage reply = message.createReply();
-                reply.setPerformative(ACLMessage.INFORM);
                 reply.setConversationId("reject_question");
 
                 send(reply);
@@ -154,11 +157,13 @@ public class TicketAgent extends Agent {
                     get_manager_agent();
                 }
                 else if (question_2 == null) {
+                    waiting = true;
                     get_question_agents();
                 }
                 else {
                     get_manager_agent();
                     stop();
+                    takeDown();
                 }
             }
         });
