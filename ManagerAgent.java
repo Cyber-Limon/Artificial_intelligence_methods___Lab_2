@@ -15,6 +15,7 @@ import org.json.simple.parser.JSONParser;
 
 
 public class ManagerAgent extends Agent {
+    private int num_ticket = 0;
     private int num_question;
     private double medium_difficulty = -1;
     private final List<Long> difficulties = new ArrayList<>();
@@ -147,6 +148,12 @@ public class ManagerAgent extends Agent {
                         save_ticket(ticket.toString());
 
                         System.out.println("[" + getLocalName() + "] сохранил 'билет' [" + message.getSender().getLocalName() + "]");
+
+                        num_ticket++;
+
+                        if (num_ticket == 15){
+                            takeDown();
+                        }
                     }
                 }
                 else {

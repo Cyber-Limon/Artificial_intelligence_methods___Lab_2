@@ -14,7 +14,7 @@ public class ServerMain {
             Profile prof = new ProfileImpl();
             prof.setParameter(Profile.GUI, "true");
             prof.setParameter(Profile.MAIN, "true");
-            prof.setParameter(Profile.LOCAL_HOST, "10.33.0.2");
+            prof.setParameter(Profile.LOCAL_HOST, "10.28.76.194");
             prof.setParameter(Profile.LOCAL_PORT, "1099");
 
             AgentContainer ServerContainer = rt.createMainContainer(prof);

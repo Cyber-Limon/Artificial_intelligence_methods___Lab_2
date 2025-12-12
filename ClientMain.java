@@ -18,9 +18,9 @@ public class ClientMain {
             Runtime rt = Runtime.instance();
 
             Profile prof = new ProfileImpl();
-            prof.setParameter(Profile.MAIN_HOST, "10.33.0.2");
+            prof.setParameter(Profile.MAIN_HOST, "10.28.76.194");
             prof.setParameter(Profile.MAIN_PORT, "1099");
-            prof.setParameter(Profile.LOCAL_HOST, "10.33.0.2");
+            prof.setParameter(Profile.LOCAL_HOST, "10.28.76.194");
             prof.setParameter(Profile.LOCAL_PORT, "1100");
             prof.setParameter(Profile.CONTAINER_NAME, "ClientContainer");
 
