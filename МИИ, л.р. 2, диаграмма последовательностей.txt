@@ -1,0 +1,92 @@
+@startuml
+
+participant TicketAgentN as TicketAgent
+
+participant ManagerAgent
+
+participant QuestionAgentN as QuestionAgent
+
+activate ManagerAgent
+
+loop по всем агентам вопросов
+
+ManagerAgent -> QuestionAgent: получить сложность
+ManagerAgent <- QuestionAgent: сложность
+
+end
+
+ManagerAgent -> ManagerAgent: вычислить среднюю сложность
+
+deactivate ManagerAgent
+
+loop по всем агентам билетов
+
+activate TicketAgent
+
+loop пока не вычислена ср сложность
+
+  TicketAgent -> ManagerAgent: запросить среднюю сложность
+  TicketAgent <- ManagerAgent: средняя сложность
+
+end
+
+loop пока агент вопроса занят
+
+  TicketAgent -> QuestionAgent: запросить вопрос
+  TicketAgent <- QuestionAgent: занят
+
+end
+
+TicketAgent -> QuestionAgent: запросить вопрос
+QuestionAgent -> QuestionAgent: занят
+TicketAgent <- QuestionAgent: вопрос
+
+TicketAgent -> TicketAgent: установить первый вопрос
+
+loop пока не найден второй вопрос
+
+loop пока агент вопроса занят
+
+  TicketAgent -> QuestionAgent: запросить вопрос
+  TicketAgent <- QuestionAgent: занят
+
+end
+
+TicketAgent -> QuestionAgent: запросить вопрос
+QuestionAgent -> QuestionAgent: занят
+TicketAgent <- QuestionAgent: вопрос
+
+alt вопрос не удовлетворяет
+  
+    TicketAgent -> QuestionAgent: освободить
+    QuestionAgent -> QuestionAgent: свободен
+  
+else
+
+  TicketAgent -> TicketAgent: завершить поиск
+  TicketAgent -> QuestionAgent: используется
+  QuestionAgent -> QuestionAgent: завершить
+  destroy QuestionAgent
+end
+
+end
+
+TicketAgent -> ManagerAgent: отправить билет
+ManagerAgent -> ManagerAgent: сохранить билет
+
+alt все билеты сохранены
+
+ManagerAgent -> ManagerAgent: завершить
+destroy ManagerAgent
+
+end
+
+TicketAgent -> TicketAgent: завершить
+
+
+deactivate TicketAgent
+destroy TicketAgent
+
+end
+
+@enduml
