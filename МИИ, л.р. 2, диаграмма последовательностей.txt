@@ -1,10 +1,10 @@
 @startuml
 
-participant TicketAgentN as TicketAgent
+participant TicketAgent_N as TicketAgent
 
 participant ManagerAgent
 
-participant QuestionAgentN as QuestionAgent
+participant QuestionAgent_N as QuestionAgent
 
 activate ManagerAgent
 
@@ -88,5 +88,6 @@ deactivate TicketAgent
 destroy TicketAgent
 
 end
+
 
 @enduml
